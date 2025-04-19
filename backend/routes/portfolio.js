@@ -1,18 +1,21 @@
 const express = require("express");
 const router = express.Router();
+const dotenv = require("dotenv");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const auth = require("../middleware/auth");
 const Portfolio = require("../models/Portfolio");
+dotenv.config();
+
+// console.log("gemini key", process.env.GEMINI_API_KEY)
 
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" }); // Use the correct model
 
 // Generate portfolio
 router.post("/generate", auth, async (req, res) => {
   try {
-    const { personalDetails, skills, education, experience, projects } =
-      req.body;
+    const { personalDetails, skills, education, experience, projects } = req.body;
 
     // Create prompt for Gemini
     const prompt = `Generate a professional portfolio based on the following details:
@@ -33,9 +36,11 @@ router.post("/generate", auth, async (req, res) => {
     Make it professional and engaging.`;
 
     // Generate content using Gemini
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    });
     const response = await result.response;
-    const generatedContent = response.text();
+    const generatedContent = response.text(); // Retrieve the content
 
     // Create new portfolio
     const portfolio = new Portfolio({
@@ -52,7 +57,7 @@ router.post("/generate", auth, async (req, res) => {
     await portfolio.save();
 
     // Add portfolio to user's portfolios array
-    req.user.portfolios.push(portfolio._id);
+    req.user.portfolios.push(portfolio._id); // Make sure req.user has portfolios array
     await req.user.save();
 
     res.status(201).json(portfolio);

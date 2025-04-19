@@ -8,20 +8,27 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for stored token on initial load
     const token = localStorage.getItem("token");
     if (token) {
+      // Set the token in axios headers
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       // Fetch user data
       axios
         .get("http://localhost:5000/api/auth/me")
-        .then((res) => {
-          setUser(res.data.user);
+        .then((response) => {
+          setUser(response.data);
         })
-        .catch((err) => {
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+          // Clear invalid token
           localStorage.removeItem("token");
           delete axios.defaults.headers.common["Authorization"];
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          setLoading(false);
+        });
     } else {
       setLoading(false);
     }
@@ -29,13 +36,21 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
-      const { token, user } = res.data;
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+      const { token, user } = response.data;
+
+      // Store token in localStorage
       localStorage.setItem("token", token);
+
+      // Set token in axios headers
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       setUser(user);
       return { success: true };
     } catch (error) {
@@ -46,16 +61,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (username, email, password) => {
+  const signup = async (name, email, password) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/signup", {
-        username,
-        email,
-        password,
-      });
-      const { token, user } = res.data;
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/signup",
+        {
+          name,
+          email,
+          password,
+        }
+      );
+      const { token, user } = response.data;
+
+      // Store token in localStorage
       localStorage.setItem("token", token);
+
+      // Set token in axios headers
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       setUser(user);
       return { success: true };
     } catch (error) {
@@ -67,8 +90,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Clear token from localStorage
     localStorage.removeItem("token");
+
+    // Remove token from axios headers
     delete axios.defaults.headers.common["Authorization"];
+
     setUser(null);
   };
 
@@ -79,4 +106,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

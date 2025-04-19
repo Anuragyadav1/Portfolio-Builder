@@ -29,7 +29,7 @@ const PortfolioForm = () => {
       location: "",
       summary: "",
     },
-    skills: [""],
+    skills: [],
     education: [
       {
         institution: "",
@@ -68,6 +68,11 @@ const PortfolioForm = () => {
           [field]: value,
         },
       }));
+    } else if (section === "skills") {
+      setFormData((prev) => ({
+        ...prev,
+        skills: prev.skills.map((skill, i) => (i === index ? value : skill)),
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -82,10 +87,17 @@ const PortfolioForm = () => {
   };
 
   const addItem = (section) => {
-    setFormData((prev) => ({
-      ...prev,
-      [section]: [...prev[section], {}],
-    }));
+    if (section === "skills") {
+      setFormData((prev) => ({
+        ...prev,
+        skills: [...prev.skills, ""],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [section]: [...prev[section], {}],
+      }));
+    }
   };
 
   const removeItem = (section, index) => {
@@ -127,15 +139,23 @@ const PortfolioForm = () => {
 
   return (
     <Box maxW="4xl" mx="auto" mt={8} p={6}>
-      <Heading mb={6}>Create Your Portfolio</Heading>
+      <Heading mb={6} color="blue.600">
+        Create Your Portfolio
+      </Heading>
       <form onSubmit={handleSubmit}>
         <VStack spacing={8} align="stretch">
           {/* Personal Details */}
-          <Box borderWidth="1px" borderRadius="lg" p={6}>
-            <Heading size="md" mb={4}>
+          <Box
+            borderWidth="1px"
+            borderRadius="lg"
+            p={6}
+            boxShadow="md"
+            bg="white"
+          >
+            <Heading size="md" mb={4} color="blue.500">
               Personal Details
             </Heading>
-            <SimpleGrid columns={2} spacing={4}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
               <FormControl>
                 <FormLabel>Name</FormLabel>
                 <Input
@@ -148,6 +168,7 @@ const PortfolioForm = () => {
                       e.target.value
                     )
                   }
+                  placeholder="Your full name"
                 />
               </FormControl>
               <FormControl>
@@ -163,6 +184,7 @@ const PortfolioForm = () => {
                       e.target.value
                     )
                   }
+                  placeholder="your.email@example.com"
                 />
               </FormControl>
               <FormControl>
@@ -177,6 +199,7 @@ const PortfolioForm = () => {
                       e.target.value
                     )
                   }
+                  placeholder="Your phone number"
                 />
               </FormControl>
               <FormControl>
@@ -191,11 +214,12 @@ const PortfolioForm = () => {
                       e.target.value
                     )
                   }
+                  placeholder="Your location"
                 />
               </FormControl>
             </SimpleGrid>
             <FormControl mt={4}>
-              <FormLabel>Summary</FormLabel>
+              <FormLabel>Professional Summary</FormLabel>
               <Textarea
                 value={formData.personalDetails.summary}
                 onChange={(e) =>
@@ -206,49 +230,75 @@ const PortfolioForm = () => {
                     e.target.value
                   )
                 }
+                placeholder="Write a brief summary about yourself"
+                rows={4}
               />
             </FormControl>
           </Box>
 
           {/* Skills */}
-          <Box borderWidth="1px" borderRadius="lg" p={6}>
-            <Heading size="md" mb={4}>
+          <Box
+            borderWidth="1px"
+            borderRadius="lg"
+            p={6}
+            boxShadow="md"
+            bg="white"
+          >
+            <Heading size="md" mb={4} color="blue.500">
               Skills
             </Heading>
-            {formData.skills.map((skill, index) => (
-              <HStack key={index} mb={2}>
-                <Input
-                  value={skill}
-                  onChange={(e) =>
-                    handleInputChange("skills", index, "", e.target.value)
-                  }
-                  placeholder="Enter a skill"
-                />
-                <IconButton
-                  icon={<DeleteIcon />}
-                  onClick={() => removeItem("skills", index)}
-                  colorScheme="red"
-                  variant="ghost"
-                />
-              </HStack>
-            ))}
-            <Button
-              leftIcon={<AddIcon />}
-              onClick={() => addItem("skills")}
-              mt={2}
-            >
-              Add Skill
-            </Button>
+            <VStack spacing={4} align="stretch">
+              {formData.skills.map((skill, index) => (
+                <HStack key={index}>
+                  <Input
+                    value={skill}
+                    onChange={(e) =>
+                      handleInputChange("skills", index, "", e.target.value)
+                    }
+                    placeholder="Enter a skill"
+                  />
+                  <IconButton
+                    icon={<DeleteIcon />}
+                    onClick={() => removeItem("skills", index)}
+                    colorScheme="red"
+                    variant="ghost"
+                    aria-label="Remove skill"
+                  />
+                </HStack>
+              ))}
+              <Button
+                leftIcon={<AddIcon />}
+                onClick={() => addItem("skills")}
+                colorScheme="blue"
+                variant="outline"
+                width="full"
+              >
+                Add Skill
+              </Button>
+            </VStack>
           </Box>
 
           {/* Education */}
-          <Box borderWidth="1px" borderRadius="lg" p={6}>
-            <Heading size="md" mb={4}>
+          <Box
+            borderWidth="1px"
+            borderRadius="lg"
+            p={6}
+            boxShadow="md"
+            bg="white"
+          >
+            <Heading size="md" mb={4} color="blue.500">
               Education
             </Heading>
             {formData.education.map((edu, index) => (
-              <Box key={index} mb={4} p={4} borderWidth="1px" borderRadius="md">
-                <SimpleGrid columns={2} spacing={4}>
+              <Box
+                key={index}
+                mb={4}
+                p={4}
+                borderWidth="1px"
+                borderRadius="md"
+                bg="gray.50"
+              >
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                   <FormControl>
                     <FormLabel>Institution</FormLabel>
                     <Input
@@ -261,6 +311,7 @@ const PortfolioForm = () => {
                           e.target.value
                         )
                       }
+                      placeholder="University/School name"
                     />
                   </FormControl>
                   <FormControl>
@@ -275,10 +326,11 @@ const PortfolioForm = () => {
                           e.target.value
                         )
                       }
+                      placeholder="Degree/Certification"
                     />
                   </FormControl>
                   <FormControl>
-                    <FormLabel>Field</FormLabel>
+                    <FormLabel>Field of Study</FormLabel>
                     <Input
                       value={edu.field}
                       onChange={(e) =>
@@ -289,6 +341,7 @@ const PortfolioForm = () => {
                           e.target.value
                         )
                       }
+                      placeholder="Field of study"
                     />
                   </FormControl>
                   <FormControl>
@@ -334,6 +387,8 @@ const PortfolioForm = () => {
                         e.target.value
                       )
                     }
+                    placeholder="Describe your education experience"
+                    rows={3}
                   />
                 </FormControl>
                 <Button
@@ -350,20 +405,35 @@ const PortfolioForm = () => {
             <Button
               leftIcon={<AddIcon />}
               onClick={() => addItem("education")}
-              mt={2}
+              colorScheme="blue"
+              variant="outline"
+              width="full"
             >
               Add Education
             </Button>
           </Box>
 
           {/* Experience */}
-          <Box borderWidth="1px" borderRadius="lg" p={6}>
-            <Heading size="md" mb={4}>
+          <Box
+            borderWidth="1px"
+            borderRadius="lg"
+            p={6}
+            boxShadow="md"
+            bg="white"
+          >
+            <Heading size="md" mb={4} color="blue.500">
               Experience
             </Heading>
             {formData.experience.map((exp, index) => (
-              <Box key={index} mb={4} p={4} borderWidth="1px" borderRadius="md">
-                <SimpleGrid columns={2} spacing={4}>
+              <Box
+                key={index}
+                mb={4}
+                p={4}
+                borderWidth="1px"
+                borderRadius="md"
+                bg="gray.50"
+              >
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                   <FormControl>
                     <FormLabel>Company</FormLabel>
                     <Input
@@ -376,6 +446,7 @@ const PortfolioForm = () => {
                           e.target.value
                         )
                       }
+                      placeholder="Company name"
                     />
                   </FormControl>
                   <FormControl>
@@ -390,6 +461,7 @@ const PortfolioForm = () => {
                           e.target.value
                         )
                       }
+                      placeholder="Your position"
                     />
                   </FormControl>
                   <FormControl>
@@ -435,6 +507,8 @@ const PortfolioForm = () => {
                         e.target.value
                       )
                     }
+                    placeholder="Describe your responsibilities and achievements"
+                    rows={4}
                   />
                 </FormControl>
                 <Button
@@ -451,21 +525,36 @@ const PortfolioForm = () => {
             <Button
               leftIcon={<AddIcon />}
               onClick={() => addItem("experience")}
-              mt={2}
+              colorScheme="blue"
+              variant="outline"
+              width="full"
             >
               Add Experience
             </Button>
           </Box>
 
           {/* Projects */}
-          <Box borderWidth="1px" borderRadius="lg" p={6}>
-            <Heading size="md" mb={4}>
+          <Box
+            borderWidth="1px"
+            borderRadius="lg"
+            p={6}
+            boxShadow="md"
+            bg="white"
+          >
+            <Heading size="md" mb={4} color="blue.500">
               Projects
             </Heading>
             {formData.projects.map((project, index) => (
-              <Box key={index} mb={4} p={4} borderWidth="1px" borderRadius="md">
+              <Box
+                key={index}
+                mb={4}
+                p={4}
+                borderWidth="1px"
+                borderRadius="md"
+                bg="gray.50"
+              >
                 <FormControl>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Project Title</FormLabel>
                   <Input
                     value={project.title}
                     onChange={(e) =>
@@ -476,6 +565,7 @@ const PortfolioForm = () => {
                         e.target.value
                       )
                     }
+                    placeholder="Project name"
                   />
                 </FormControl>
                 <FormControl mt={4}>
@@ -490,59 +580,66 @@ const PortfolioForm = () => {
                         e.target.value
                       )
                     }
+                    placeholder="Describe your project"
+                    rows={4}
                   />
                 </FormControl>
                 <FormControl mt={4}>
-                  <FormLabel>Technologies</FormLabel>
-                  {project.technologies.map((tech, techIndex) => (
-                    <HStack key={techIndex} mb={2}>
-                      <Input
-                        value={tech}
-                        onChange={(e) => {
-                          const newTechs = [...project.technologies];
-                          newTechs[techIndex] = e.target.value;
-                          handleInputChange(
-                            "projects",
-                            index,
-                            "technologies",
-                            newTechs
-                          );
-                        }}
-                        placeholder="Enter a technology"
-                      />
-                      <IconButton
-                        icon={<DeleteIcon />}
-                        onClick={() => {
-                          const newTechs = project.technologies.filter(
-                            (_, i) => i !== techIndex
-                          );
-                          handleInputChange(
-                            "projects",
-                            index,
-                            "technologies",
-                            newTechs
-                          );
-                        }}
-                        colorScheme="red"
-                        variant="ghost"
-                      />
-                    </HStack>
-                  ))}
-                  <Button
-                    leftIcon={<AddIcon />}
-                    onClick={() => {
-                      const newTechs = [...project.technologies, ""];
-                      handleInputChange(
-                        "projects",
-                        index,
-                        "technologies",
-                        newTechs
-                      );
-                    }}
-                    mt={2}
-                  >
-                    Add Technology
-                  </Button>
+                  <FormLabel>Technologies Used</FormLabel>
+                  <VStack spacing={2}>
+                    {project.technologies.map((tech, techIndex) => (
+                      <HStack key={techIndex} width="full">
+                        <Input
+                          value={tech}
+                          onChange={(e) => {
+                            const newTechs = [...project.technologies];
+                            newTechs[techIndex] = e.target.value;
+                            handleInputChange(
+                              "projects",
+                              index,
+                              "technologies",
+                              newTechs
+                            );
+                          }}
+                          placeholder="Technology name"
+                        />
+                        <IconButton
+                          icon={<DeleteIcon />}
+                          onClick={() => {
+                            const newTechs = project.technologies.filter(
+                              (_, i) => i !== techIndex
+                            );
+                            handleInputChange(
+                              "projects",
+                              index,
+                              "technologies",
+                              newTechs
+                            );
+                          }}
+                          colorScheme="red"
+                          variant="ghost"
+                          aria-label="Remove technology"
+                        />
+                      </HStack>
+                    ))}
+                    <Button
+                      leftIcon={<AddIcon />}
+                      onClick={() => {
+                        const newTechs = [...project.technologies, ""];
+                        handleInputChange(
+                          "projects",
+                          index,
+                          "technologies",
+                          newTechs
+                        );
+                      }}
+                      colorScheme="blue"
+                      variant="outline"
+                      width="full"
+                    >
+                      Add Technology
+                    </Button>
+                  </VStack>
                 </FormControl>
                 <FormControl mt={4}>
                   <FormLabel>Project Link</FormLabel>
@@ -556,6 +653,7 @@ const PortfolioForm = () => {
                         e.target.value
                       )
                     }
+                    placeholder="Project URL or repository link"
                   />
                 </FormControl>
                 <Button
@@ -572,7 +670,9 @@ const PortfolioForm = () => {
             <Button
               leftIcon={<AddIcon />}
               onClick={() => addItem("projects")}
-              mt={2}
+              colorScheme="blue"
+              variant="outline"
+              width="full"
             >
               Add Project
             </Button>
@@ -584,6 +684,8 @@ const PortfolioForm = () => {
             size="lg"
             isLoading={loading}
             loadingText="Generating Portfolio..."
+            width="full"
+            mt={4}
           >
             Generate Portfolio
           </Button>
