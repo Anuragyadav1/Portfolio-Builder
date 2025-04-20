@@ -22,10 +22,15 @@ export const AuthProvider = ({ children }) => {
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
-          // Clear invalid token
-          localStorage.removeItem("token");
-          delete axios.defaults.headers.common["Authorization"];
+
+          // Only remove token if it's unauthorized (401)
+          if (error.response && error.response.status === 401) {
+            localStorage.removeItem("token");
+            delete axios.defaults.headers.common["Authorization"];
+            setUser(null);
+          }
         })
+
         .finally(() => {
           setLoading(false);
         });

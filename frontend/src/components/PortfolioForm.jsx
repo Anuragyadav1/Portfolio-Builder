@@ -15,10 +15,12 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PortfolioForm = () => {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  const navigate = useNavigate();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -122,7 +124,8 @@ const PortfolioForm = () => {
         duration: 3000,
         isClosable: true,
       });
-      // Handle success - maybe navigate to portfolio view
+      // Navigate to the generated portfolio
+      navigate(`/portfolio/${response.data._id}`);
     } catch (error) {
       toast({
         title: "Error",

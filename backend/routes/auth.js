@@ -2,6 +2,17 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const auth = require("../middleware/auth");
+
+// GET /api/auth/me
+router.get("/me", auth, async (req, res) => {
+  try {
+    const { _id, username, email } = req.user;
+    res.json({ _id, username, email });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // Signup route
 router.post("/signup", async (req, res) => {
